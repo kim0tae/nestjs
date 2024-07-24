@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -27,7 +28,11 @@ export class MoviesController {
 
   @Get('/:id')
   getOne(@Param('id') movieId: string): Movie {
-    return this.movieService.getOne(movieId);
+    const movie = this.movieService.getOne(movieId);
+    if (!movie) {
+      throw new NotFoundException(`Movie with ID: ${movieId} Not Found`);
+    }
+    return movie;
   }
 
   @Post()
@@ -37,14 +42,11 @@ export class MoviesController {
 
   @Delete('/:id')
   remove(@Param('id') movieId: string) {
-    return this.movieService.deleteMovie(movieId);
+    return this.movieService.deleteOne(movieId);
   }
 
   @Patch('/:id')
   patch(@Param('id') movieId: string, @Body() updateData) {
-    return {
-      updatedMovie: movieId,
-      ...updateData,
-    };
+    return this.movieService.update(movieId, updateData);
   }
 }
